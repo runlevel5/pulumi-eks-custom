@@ -36,6 +36,10 @@ function applyVpcCniYaml(args) {
     // Dump the kubeconfig to a file.
     const tmpKubeconfig = tmp.fileSync();
     fs.writeFileSync(tmpKubeconfig.fd, kubeconfig);
+    // Delete the stock aws-node
+    childProcess.execSync(`kubectl delete daemonset -n kube-system aws-node`, {
+        env: Object.assign(Object.assign({}, process.env), { "KUBECONFIG": tmpKubeconfig.name }),
+    });
     // Call kubectl to apply the YAML.
     childProcess.execSync(`kubectl apply -f ${yamlPath}`, {
         env: Object.assign(Object.assign({}, process.env), { "KUBECONFIG": tmpKubeconfig.name }),
